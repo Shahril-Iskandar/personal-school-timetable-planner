@@ -137,10 +137,10 @@ Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
         .ColorIndex = 1
     End With
     
-    'Add Clear Courses Button
+    'Add Remove Courses Button
     ActiveSheet.Buttons.Add(95.5, 249, 65, 32).Select
-    Selection.OnAction = "ClearCourses"
-    Selection.Characters.Text = "Clear Courses"
+    Selection.OnAction = "Remove Courses"
+    Selection.Characters.Text = "Remove Course"
     With Selection.Characters(Start:=1, Length:=8).Font
         .Name = "Calibri"
         .FontStyle = "Regular"
@@ -149,6 +149,18 @@ Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
         .ColorIndex = 1
     End With
     
+    'Add Clear Courses Button
+    ActiveSheet.Buttons.Add(95.5, 310, 65, 32).Select
+    Selection.OnAction = "ClearCourses"
+    Selection.Characters.Text = "Clear Courses"
+    With Selection.Characters(Start:=1, Length:=8).Font
+        .Name = "Calibri"
+        .FontStyle = "Regular"
+        .Size = 11
+        .Underline = xlUnderlineStyleNone
+        .ColorIndex = 1
+    End With                                                                                                                
+                                                                                                                    
     Range("E2").Select
 
 End Sub
@@ -357,7 +369,22 @@ Attribute NameManager.VB_ProcData.VB_Invoke_Func = " \n14"
 End Sub
 
 Sub RemoveCourse()
-'Allow user to select which to remove
+Dim row As Integer, col As Range, rng As Range, ans As String
+Set rng = Range("F15:O27")
+
+'Allow users to select which to remove
+    row = InputBox("Enter row to delete:")
+    rng.Rows(row).Interior.ColorIndex = 6
+    ans = InputBox("Confirm to highlighted row? Y/N")
+    
+    If ans = "Y" Or ans = "y" Then
+        rng.Rows(row).ClearContents
+    ElseIf ans = "N" Or ans = "n" Then
+        MsgBox ("Nothing is deleted.")
+    End If
+    
+    rng.Rows(row).Interior.ColorIndex = 0
+    Range("E2").Select
 End Sub
 
 Sub ClearCourses()
