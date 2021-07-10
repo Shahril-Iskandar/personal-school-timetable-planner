@@ -1,5 +1,5 @@
 Attribute VB_Name = "Module1"
-Sub All()
+Sub Start()
 
 Call FormatList
 Call CalendarTable
@@ -11,27 +11,29 @@ Call Conditioning
 
 End Sub
 Sub FormatList()
-Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
-'
-'
+
+    Application.ScreenUpdating = False
     Range("A1").Select
     Selection.CurrentRegion.Select
     Application.CutCopyMode = False
     ActiveSheet.ListObjects.Add(xlSrcRange, Range("$A$1:$J$66"), , xlYes).Name = _
         "Table1"
-    Columns("I:J").Select
+    
+    Columns("H:I").Select
     Selection.NumberFormat = "[$-en-US,1]h:mm am/pm;@"
-    Columns("I:I").Select
-    Selection.TextToColumns Destination:=Range("Table1[[#Headers],[Start Time]]") _
-        , DataType:=xlDelimited, TextQualifier:=xlDoubleQuote, _
-        ConsecutiveDelimiter:=False, Tab:=True, Semicolon:=False, Comma:=False _
-        , Space:=False, Other:=False, FieldInfo:=Array(1, 1), _
-        TrailingMinusNumbers:=True
     Columns("J:J").Select
-    Selection.TextToColumns Destination:=Range("Table1[[#Headers],[End Time]]"), _
-        DataType:=xlDelimited, TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter _
-        :=False, Tab:=True, Semicolon:=False, Comma:=False, Space:=False, _
-        Other:=False, FieldInfo:=Array(1, 1), TrailingMinusNumbers:=True
+    Selection.NumberFormat = "m/d/yyyy"
+    Columns("H:H").Select
+    Selection.TextToColumns Destination:=Range("Table1[[#Headers],[Start Time]]"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=True, _
+        Semicolon:=False, Comma:=False, Space:=False, Other:=False, FieldInfo _
+        :=Array(1, 1), TrailingMinusNumbers:=True
+    Columns("I:I").Select
+    Selection.TextToColumns Destination:=Range("Table1[[#Headers],[End Time]]"), DataType:=xlDelimited, _
+        TextQualifier:=xlDoubleQuote, ConsecutiveDelimiter:=False, Tab:=True, _
+        Semicolon:=False, Comma:=False, Space:=False, Other:=False, FieldInfo _
+        :=Array(1, 1), TrailingMinusNumbers:=True
+    
     Range("Table1[#Headers]").Select
     Selection.Copy
     Sheets.Add After:=ActiveSheet
@@ -97,8 +99,10 @@ Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
     Selection.EntireColumn.Hidden = True
     Columns("C:O").Select
     Columns("C:O").EntireColumn.AutoFit
-    Columns("N:O").Select
+    Columns("M:N").Select
     Selection.NumberFormat = "[$-en-US,1]h:mm am/pm;@"
+    Columns("O").Select
+    Selection.NumberFormat = "m/d/yyyy"
     Columns("F:O").Select
     Selection.ColumnWidth = 14.82
     Range("C1").Select
@@ -127,7 +131,7 @@ Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
     End With
     
     'Add Course Button
-    ActiveSheet.Buttons.Add(94.5, 188, 67, 32).Select
+    ActiveSheet.Buttons.Add(95.5, 190, 65, 32).Select
     Selection.OnAction = "AddCourse"
     Selection.Characters.Text = "Add Course"
     With Selection.Characters(Start:=1, Length:=10).Font
@@ -138,8 +142,8 @@ Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
     End With
     
     'Add Remove Courses Button
-    ActiveSheet.Buttons.Add(95.5, 249, 65, 32).Select
-    Selection.OnAction = "Remove Courses"
+    ActiveSheet.Buttons.Add(95.5, 250, 65, 32).Select
+    Selection.OnAction = "RemoveCourse"
     Selection.Characters.Text = "Remove Course"
     With Selection.Characters(Start:=1, Length:=8).Font
         .Name = "Calibri"
@@ -159,35 +163,27 @@ Attribute FormatList.VB_ProcData.VB_Invoke_Func = " \n14"
         .Size = 11
         .Underline = xlUnderlineStyleNone
         .ColorIndex = 1
-    End With                                                                                                                
-                                                                                                                    
-    Range("E2").Select
-
-End Sub
-
-Sub AddCourse()
-
-Dim CopyRng As Range, i As Range
-
-    Range("F2:O2").Select
-    Selection.Copy
-    Range("F2").End(xlDown).Offset(1, 0).Select
-    For Each i In Range("F15:F27")
-        If IsEmpty(ActiveCell.Value) = False Then
-            ActiveCell.Offset(1, 0).Select
-        Else
-            Selection.PasteSpecial Paste:=xlPasteValues
-            Exit For
-        End If
-    Next
+    End With
     
-    Application.CutCopyMode = False
-'    MsgBox ("Course added")
+    'Add Google Button
+    ActiveSheet.Buttons.Add(95.5, 370, 90, 32).Select
+    Selection.OnAction = "FormatGoogle"
+    Selection.Characters.Text = "Google Format"
+    With Selection.Characters(Start:=1, Length:=8).Font
+        .Name = "Calibri"
+        .FontStyle = "Regular"
+        .Size = 11
+        .Underline = xlUnderlineStyleNone
+        .ColorIndex = 1
+    End With
+    ActiveWindow.DisplayGridlines = False
+    Range("E2").Select
 
 End Sub
 
 Sub CalendarTable()
 
+    Application.ScreenUpdating = False
     Sheets.Add After:=ActiveSheet
     ActiveSheet.Name = "Calendar"
     Range("A1").Select
@@ -204,23 +200,37 @@ Sub CalendarTable()
 End Sub
 
 Sub CalendarData()
-
+    
+    Application.ScreenUpdating = False
+    'Day
     Range("A2").Select
     ActiveCell.FormulaR1C1 = "='Sheet2'!R[13]C[10]"
+    'Subject
     Range("B2").Select
     ActiveCell.FormulaR1C1 = "='Sheet2'!R[13]C[5]"
+    'Start Time
     Range("C2").Select
-    ActiveCell.FormulaR1C1 = "='Sheet2'!R[13]C[11]"
+    ActiveCell.FormulaR1C1 = "='Sheet2'!R[13]C[10]"
+    'End Time
     Range("D2").Select
-    ActiveCell.FormulaR1C1 = "='Sheet2'!R[13]C[11]"
+    ActiveCell.FormulaR1C1 = "='Sheet2'!R[13]C[10]"
+    
+'    Range("C2").Select
+'    ActiveCell.FormulaR1C1 = "=Sheet2!R[13]C[10]"
+'    Range("C2").Select
+'    Selection.AutoFill Destination:=Range("C2:D2"), Type:=xlFillDefault
+'    Range("C2:D2").Select
+    
+    'Format Time
     Columns("C:D").Select
     Selection.NumberFormat = "[$-en-US,1]h:mm am/pm;@"
+    
     Columns("A:D").Select
     Selection.EntireColumn.AutoFit
 End Sub
 Sub CalendarOutline()
-Attribute CalendarOutline.VB_ProcData.VB_Invoke_Func = " \n14"
-
+    
+    Application.ScreenUpdating = False
     Range("F2").Select
     ActiveCell.FormulaR1C1 = "8:00"
     Range("F3").Select
@@ -256,8 +266,8 @@ Attribute CalendarOutline.VB_ProcData.VB_Invoke_Func = " \n14"
 End Sub
 
 Sub CalendarFormula()
-Attribute CalendarFormula.VB_ProcData.VB_Invoke_Func = " \n14"
-'
+
+    Application.ScreenUpdating = False
     Range("G2").Select
     ActiveCell.Formula2R1C1 = _
         "=IFERROR(IF(SUMPRODUCT((Table2[Start Time]=RC6)*(R1C=Table2[Day]))=0, """", INDEX(Table2[Subject], SUMPRODUCT((Table2[Day]=R1C)*(Table2[Start Time]=RC6)*(MATCH(ROW(Table2[Day]), ROW(Table2[Day])))))), """")"
@@ -286,8 +296,8 @@ Attribute CalendarFormula.VB_ProcData.VB_Invoke_Func = " \n14"
     Range("G2").Select
 End Sub
 Sub Conditioning()
-Attribute Conditioning.VB_ProcData.VB_Invoke_Func = " \n14"
-'
+
+    Application.ScreenUpdating = False
     Range("G2:M86").Select
 'Color Fill
     Selection.FormatConditions.Add Type:=xlExpression, Formula1:= _
@@ -351,11 +361,12 @@ Attribute Conditioning.VB_ProcData.VB_Invoke_Func = " \n14"
         .Weight = xlThin
     End With
     Selection.FormatConditions(1).StopIfTrue = False
+    Range("E2").Select
     
 End Sub
 Sub NameManager()
-Attribute NameManager.VB_ProcData.VB_Invoke_Func = " \n14"
-'
+
+    Application.ScreenUpdating = False
     ActiveWorkbook.Names.Add Name:="Start", RefersToR1C1:= _
         "=OFFSET(Calendar!R2C3,0,0,MATCH(""ZZZZZZZZZZZ"",Calendar!C1)-1)"
     ActiveWorkbook.Names("Start").Comment = ""
@@ -368,27 +379,173 @@ Attribute NameManager.VB_ProcData.VB_Invoke_Func = " \n14"
 
 End Sub
 
+Sub AddCourse()
+
+Dim CopyRng As Range, i As Range
+
+    Application.ScreenUpdating = False
+    Range("F2:O2").Select
+    Selection.Copy
+    Range("F2").End(xlDown).Offset(1, 0).Select
+    For Each i In Range("F15:F27")
+        If IsEmpty(ActiveCell.Value) = False Then
+            ActiveCell.Offset(1, 0).Select
+        Else
+            Selection.PasteSpecial Paste:=xlPasteValues
+            Exit For
+        End If
+    Next
+    
+    Application.CutCopyMode = False
+'    MsgBox ("Course added")
+
+End Sub
 Sub RemoveCourse()
 Dim row As Integer, col As Range, rng As Range, ans As String
 Set rng = Range("F15:O27")
 
-'Allow users to select which to remove
+'Allow user to select which to remove
+    Application.ScreenUpdating = False
     row = InputBox("Enter row to delete:")
     rng.Rows(row).Interior.ColorIndex = 6
-    ans = InputBox("Confirm to highlighted row? Y/N")
+    ans = InputBox("Confirm to delete row " & row & " as highlighted? " & Chr(13) & Chr(10) & "(Y/N)")
     
     If ans = "Y" Or ans = "y" Then
         rng.Rows(row).ClearContents
     ElseIf ans = "N" Or ans = "n" Then
-        MsgBox ("Nothing is deleted.")
+        MsgBox ("Mission abort.")
     End If
     
     rng.Rows(row).Interior.ColorIndex = 0
     Range("E2").Select
 End Sub
 
+
 Sub ClearCourses()
+Dim ans As String
 'Empty the whole range
-    Range("F15:O27").ClearContents
+    Application.ScreenUpdating = False
+    
+    ans = InputBox("Confirm to clear course added ?" & Chr(13) & Chr(10) & "(Y/N)")
+
+    If ans = "Y" Or ans = "y" Then
+        Range("F15:O27").ClearContents
+    ElseIf ans = "N" Or ans = "n" Then
+        MsgBox ("Mission abort.")
+    End If
+      
 End Sub
 
+Sub RemoveCourse2()
+Dim row As Integer, col As Range, rng As Range, ans As String
+Set rng = Range("F15:O27")
+Application.ScreenUpdating = False
+
+'Allow user to select which to remove
+    row = InputBox("Enter row to delete:")
+    rng.Rows(row).Interior.ColorIndex = 6
+    ans = InputBox("Confirm to delete row " & row & " as highlighted? " & Chr(13) & Chr(10) & "(Y/N)")
+    
+    If ans = "Y" Or ans = "y" Then
+        rng.Rows(row).ClearContents
+    ElseIf ans = "N" Or ans = "n" Then
+        MsgBox ("Mission abort.")
+    End If
+    
+    rng.Rows(row).Interior.ColorIndex = 0
+    Range("E2").Select
+    'ask user to select before clicking button
+    'select delete row
+End Sub
+
+Sub FormatGoogle()
+
+    Application.ScreenUpdating = False
+    Sheets.Add After:=ActiveSheet
+    ActiveSheet.Name = "Google"
+    Range("A1").Select
+    ActiveCell.FormulaR1C1 = "Subject"
+    Range("B1").Select
+    ActiveCell.FormulaR1C1 = "Start Date"
+    Range("C1").Select
+    ActiveCell.FormulaR1C1 = "Start Time"
+    Range("D1").Select
+    ActiveCell.FormulaR1C1 = "End Time"
+    Range("E1").Select
+    ActiveCell.FormulaR1C1 = "Description"
+    Range("F1").Select
+    ActiveCell.FormulaR1C1 = "Location"
+    
+    Range("A2").Select
+    ActiveCell.FormulaR1C1 = _
+        "=IF(ISBLANK(Sheet2!R[13]C[5]),"""",LEFT(Sheet2!R[13]C[5],6)&"" ""&Sheet2!R[13]C[6]&"" (""&Sheet2!R[13]C[7]&"")"")"
+    Range("B2").Select
+    ActiveCell.Formula = _
+        "=IF(ISBLANK(Sheet2!R[13]C[13]),"""",Sheet2!R[13]C[13])"
+    Range("C2").Select
+    ActiveCell.Formula = _
+        "=IF(ISBLANK(Sheet2!R[13]C[10]),"""",Sheet2!R[13]C[10])"
+    Range("D2").Select
+    ActiveCell.Formula = _
+        "=IF(ISBLANK(Sheet2!R[13]C[10]),"""",Sheet2!R[13]C[10])"
+    Range("F2").Select
+    ActiveCell.Formula = _
+        "=IF(ISBLANK(Sheet2!R[13]C[6]),"""",Sheet2!R[13]C[6])"
+    
+    'Format Time
+    Columns("C:D").Select
+    Selection.NumberFormat = "[$-en-US,1]h:mm am/pm;@"
+    Columns("B:B").Select
+    Selection.NumberFormat = "m/d/yyyy"
+    
+
+    Range("A2:F2").Select
+    Selection.AutoFill Destination:=Range("A2:F14"), Type:=xlFillDefault
+    Range(Selection, Selection.End(xlDown)).Select
+    Selection.Copy
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    Columns("A:F").Select
+    Selection.EntireColumn.AutoFit
+    Application.CutCopyMode = False
+    
+
+    'Add button
+    ActiveSheet.Buttons.Add(548.5, 29, 66, 30).Select
+    Selection.OnAction = "saveSheetToCSV"
+    Selection.Characters.Text = "Export"
+    With Selection.Characters(Start:=1, Length:=6).Font
+        .Name = "Calibri"
+        .FontStyle = "Regular"
+        .Size = 11
+        .Underline = xlUnderlineStyleNone
+        .ColorIndex = 1
+    End With
+    ActiveWindow.DisplayGridlines = False
+    Range("A2").Select
+End Sub
+
+Sub saveSheetToCSV()
+    
+    Application.ScreenUpdating = False
+    Dim myCSVFileName As String
+    Dim tempWB As Workbook
+
+    Application.DisplayAlerts = False
+    On Error GoTo err
+
+    myCSVFileName = ThisWorkbook.Path & "\" & "CSV-Exported-File-" & VBA.Format(VBA.Now, "dd-MMM-yyyy") & ".csv"
+
+    ThisWorkbook.ActiveSheet.Activate
+    ActiveSheet.Copy
+    Set tempWB = ActiveWorkbook
+
+    With tempWB
+    .SaveAs Filename:=myCSVFileName, FileFormat:=xlCSV, CreateBackup:=False
+    .Close
+    End With
+err:
+    Application.DisplayAlerts = True
+    
+    MsgBox ("Export successful. Check folder for new CSV file.")
+End Sub
