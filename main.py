@@ -52,14 +52,7 @@ table = pd.read_excel("Table.xlsx")
 table = table.iloc[:,1:] #Remove first column
 table = table.replace('', np.nan).ffill() #Fill up the missing blank spaces
 
-table = table.replace('\n', ' ')
-
-#display(table)
-
-table = pd.read_excel("Table.xlsx", dtype=str)
-table = table.iloc[:,1:] #Remove first column
-table = table.replace('', np.nan).ffill() #Fill up the missing blank spaces
-
+#Removing the alt enter spaces, can't seem to loop
 #for column in table.columns:
 #  table[column] = table[column].str.replace("\n", " ")
 table['Course Code'] = table['Course Code'].str.replace("\n", "")
@@ -68,7 +61,6 @@ table['Course Type'] = table['Course Type'].str.replace("\n", "")
 table['Day'] = table['Day'].str.replace("\n", "")
 table['Time'] = table['Time'].str.replace("\n", "")
 table['Venue'] = table['Venue'].str.replace("\n", "")
-table
 
 #Dropping sport psychology for ease
 table = table.drop(labels=7, axis=0)
@@ -82,28 +74,22 @@ table = table.drop('Time', axis=1)
 table['Start Time'] = table['Start Time'].str[:2] + ":" + table['Start Time'].str[-2:]
 table['End Time'] = table['End Time'].str.strip().str[0:2] + ":"+ table['End Time'].str.strip().str[-2:]
 
-table = table.dropna(axis=1) #Drop any column that is null, i.e. Remarks
+#Drop any column that is null, i.e. Remarks
+table = table.dropna(axis=1)
 table['Start Time'] = pd.to_datetime(table['Start Time']).dt.time
 table['End Time'] = pd.to_datetime(table['End Time']).dt.time
 
+#Formating the 'Date' column to datetime
 week_days= ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-# l=list(map(int, input("Enter date \n eg: 05 05 2019 \n").split(' ')))
-# print("l= ", l) #[10, 8, 2021]
-# day=datetime.date(l[2],l[1],l[0]).weekday()
-# print(day) #1
-# print(week_days[day][:3].upper())#TUE
-
 date = str(input('\nEnter the first day of school in dd mm yyyy format, with spaces. \n Example: 9 August 2021 = 09 08 2019 \n Date:  '))
-day, month, year = date.split(' ')
-#print(day, month, year) #10 08 2021
+day, month, year = date.split(' ') #10 08 2021
 startdate = datetime.date(int(year), int(month), int(day)) #2021-08-10
 #print(startdate.strftime("%a").upper()) #Tue
 #test = [string for string in week_days if startdate.strftime("%a") in string] # ['Tuesday']
 
 ls = []
 all = []
-enddate = startdate + timedelta(days=6)
-print(enddate) #2021-08-16
+enddate = startdate + timedelta(days=6) #2021-08-16
 diff = enddate - startdate
 
 for i in range(diff.days + 1):
@@ -142,23 +128,12 @@ df = pd.DataFrame(list_of_tuples,
 df['Date']= pd.to_datetime(df['Date'], dayfirst=True)
 
 table = pd.merge(table, df)
-#display(table)
 
 #Export out as excel
 table.to_excel("SSM Timetable Planner.xlsx")
-
 wb = load_workbook(filename = 'SSM Timetable Planner.xlsx')
 ws = wb.active
-
 ws.delete_cols(idx=1,amount=1)
-#for cell in ws['A']:
-#    print(cell.value)
-
-#tab = Table(displayName="Table1", ref="A:J")
-#style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
-#                       showLastColumn=False, showRowStripes=True, showColumnStripes=True)
-#tab.tableStyleInfo = style
-#ws.add_table(tab)
 wb.save("SSM Timetable Planner.xlsx")
 
 print("Done. Please check files.")
