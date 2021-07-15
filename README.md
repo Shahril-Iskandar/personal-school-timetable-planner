@@ -5,4 +5,4 @@ Allow students to plan their courses visually; by following NTU STARS format tha
 
 How?
 
-Download file `Module1.bas` and follow guide on `Instructions.ipynb`
+Download file `Module1.bas` and follow guide on `Instructions.ipynb`to run code on `main.ipynb`.
