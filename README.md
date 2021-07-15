@@ -1,7 +1,7 @@
 # SSM-Timetable-Planner
 What is this about?
 
-Allow students to plan their courses visually, following NTU STARS format that allows for dropdown option and visually display in calendar format. Students can also export to Google calendar format.
+Allow students to plan their courses visually; by following NTU STARS format that allows for dropdown option and display in calendar format. Students can also export to Google calendar format.
 
 How?
 
