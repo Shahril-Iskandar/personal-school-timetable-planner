@@ -1,4 +1,6 @@
 # SSM-Timetable-Planner
-Converting SSM PDF Timetable to Excel. Subsequently, run macro to make it similar to NTU STARS with dropdown option and show in calendar format. Able to export to Google calendar format.
+What is this about?
+Allow students to plan their courses visually, following NTU STARS format that allows for dropdown option and visually display in calendar format. Students can also export to Google calendar format.
 
-Downdload file `Module 1.bas` and follow guide on `Instructions.ipynb`
+How?
+Download file `Module 1.bas` and follow guide on `Instructions.ipynb`
