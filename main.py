@@ -2,7 +2,6 @@
 # !pip install "camelot-py[cv]"
 # !pip install ghostscript
 # !pip install excalibur-py
-# !apt install ghostscript python3-tk
 # !pip install xlsxwriter
 import tabula
 import camelot
@@ -17,6 +16,9 @@ import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+#Updated 15 July 2021
+
+#Select file
 file = input("Enter file name: ")
 
 #Allow user to input page to extract
@@ -24,69 +26,64 @@ start = input("Input start page: ")
 end = input("Input last page: ")
 page = f"{start}-{end}"
 
-#Read the pdf and extract table
+#Read the pdf and extract the table
 tables = camelot.read_pdf(file, pages=page)
 print("\nTotal tables extracted: ", tables.n)
 
+#Extract the first page chosen
+df = tables[0].df
 #Remove first row from second page onwards and append
-final = tables[0].df
 for t in range(1, tables.n):
   data = tables[t].df
   data = data.drop(labels=0, axis=0)
-  final = final.append(data)
+  df = df.append(data)
 
-#display(final)
+#Make first row as the header
+new_header = df.iloc[0]
+df = df[1:]
+df.columns = new_header
 
-#Changing column name
+#Changing column name without the \n
 headerName = ["Course Code", "Title", "Class Type", "Course Type", "Group", "Day", "Time", "Venue", "Remark"]
-final.columns = headerName
+df.columns = headerName
 
-#Dropping first row
-final = final.drop(labels=0,axis=0)
-#display(final)
+#Export out first because need to use index_col
+df.to_excel("SSM Timetable Planner.xlsx")
 
-#Export out
-final.to_excel("Table.xlsx")
+#Read the excel file
+df = pd.read_excel("SSM Timetable Planner.xlsx", index_col=[0])
 
-table = pd.read_excel("Table.xlsx")
-table = table.iloc[:,1:] #Remove first column
-table = table.replace('', np.nan).ffill() #Fill up the missing blank spaces
-
-#Removing the alt enter spaces, can't seem to loop
-#for column in table.columns:
-#  table[column] = table[column].str.replace("\n", " ")
-table['Course Code'] = table['Course Code'].str.replace("\n", "")
-table['Title'] = table['Title'].str.replace("\n", " ")
-table['Course Type'] = table['Course Type'].str.replace("\n", "")
-table['Day'] = table['Day'].str.replace("\n", "")
-table['Time'] = table['Time'].str.replace("\n", "")
-table['Venue'] = table['Venue'].str.replace("\n", "")
-
-#Dropping sport psychology for ease
-table = table.drop(labels=7, axis=0)
-
-#Separate start and end time into new columns and delete old
-table['Start Time'] = table['Time'].str.split('-', expand=True)[0]
-table['End Time'] = table['Time'].str.split('-', expand=True)[1]
-table = table.drop('Time', axis=1)
-
-#Format time to include semicolon
-table['Start Time'] = table['Start Time'].str[:2] + ":" + table['Start Time'].str[-2:]
-table['End Time'] = table['End Time'].str.strip().str[0:2] + ":"+ table['End Time'].str.strip().str[-2:]
+#Filling up the empty cells
+df.fillna(method="ffill", inplace=True)
 
 #Drop any column that is null, i.e. Remarks
-table = table.dropna(axis=1)
-table['Start Time'] = pd.to_datetime(table['Start Time']).dt.time
-table['End Time'] = pd.to_datetime(table['End Time']).dt.time
+df = df.dropna(axis=1) 
+
+#Replace the \n
+for column in df.columns.astype(str):
+    df[column] = df[column].str.replace("\n", "")
+
+#If in the 'Day' column has more than 3 characters, remove it
+df = df.drop(df[df.Day.str.len() > 3].index)
+
+#Splitting the time into start and end time
+df['Start Time'] = df['Time'].str.split('-', expand=True)[0]
+df['End Time'] = df['Time'].str.split('-', expand=True)[1]
+
+#Format time to include semicolon
+df['Start Time'] = df['Start Time'].str[:2] + ":" + df['Start Time'].str[-2:]
+df['End Time'] = df['End Time'].str.strip().str[0:2] + ":"+ df['End Time'].str.strip().str[-2:]
+
+#Delete old time colum
+df = df.drop('Time', axis=1)
 
 #Formating the 'Date' column to datetime
 week_days= ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-date = str(input('\nEnter the first day of school in dd mm yyyy format, with spaces. \n Example: 9 August 2021 = 09 08 2019 \n Date:  '))
+date = str(input('\nEnter the first day of school in dd mm yyyy format, with spaces. \n Example: 9 August 2021 = 09 08 2021 \n Date:  '))
 day, month, year = date.split(' ') #10 08 2021
 startdate = datetime.date(int(year), int(month), int(day)) #2021-08-10
-#print(startdate.strftime("%a").upper()) #Tue
-#test = [string for string in week_days if startdate.strftime("%a") in string] # ['Tuesday']
 
+#From startdate, find the next 6 days.
 ls = []
 all = []
 enddate = startdate + timedelta(days=6) #2021-08-16
@@ -99,41 +96,39 @@ for i in range(diff.days + 1):
     m = datee.strftime("%m") #month number
     y = datee.strftime("%Y") #year number
     ls.append(k)
-    all.append(d + m + y)
-    #print("k = ", k)
-#print("ls = ", ls)
-#print("all = ", all) #get [10082021, 11082021,...] etc
+    all.append(d + m + y) #to get [10082021, 11082021,...] etc
 
+#Put the date in 10/08/2021 format
 newls = []
 for i in all:
     i = i[0:2] + "/" + i[2:4] + "/" + i[4:]
     newls.append(i)
-    #print(i)
-#print("newls = ", newls)
 
+#Use the new format so can use the .weekday() function
 newday = []
 for i in newls:
     newlist = list(map(int, i.split('/')))
-    print(newlist)
-    day=datetime.date(newlist[2],newlist[1],newlist[0]).weekday()
-    #print(day) #1
+    #print(newlist)
+    day=datetime.date(newlist[2],newlist[1],newlist[0]).weekday() #1
     d = week_days[day][:3].upper()#TUE
-    newday.append(d)
-#print("newday = ", newday) #['TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'MON']
+    newday.append(d) #['TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'MON']
 
+#put in a new dataframe, then merge
 list_of_tuples = list(zip(newls, newday))
 
-df = pd.DataFrame(list_of_tuples,
+df2 = pd.DataFrame(list_of_tuples,
                   columns = ['Date', 'Day'])
-df['Date']= pd.to_datetime(df['Date'], dayfirst=True)
+df2['Date']= pd.to_datetime(df2['Date'], dayfirst=True)
 
-table = pd.merge(table, df)
+df = pd.merge(df, df2)
 
 #Export out as excel
-table.to_excel("SSM Timetable Planner.xlsx")
+df.to_excel("SSM Timetable Planner.xlsx")
 wb = load_workbook(filename = 'SSM Timetable Planner.xlsx')
 ws = wb.active
+
+#Delete the first column which shows the row numbers
 ws.delete_cols(idx=1,amount=1)
 wb.save("SSM Timetable Planner.xlsx")
 
-print("Done. Please check files.")
+print("Success. Please check your file explorer.")
