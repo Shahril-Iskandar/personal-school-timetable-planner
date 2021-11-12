@@ -10,3 +10,5 @@ Download file `Module1.bas` and follow guide on `Instructions.ipynb`to run code 
 *CAVEAT:
 
 If there is more than 1 day shown in the 'Day' column of the timetable given, the 2nd day will be removed. You will have to add it manually, otherwise it will not be available in the dropdown. If unclear, please see guide.
+
+Hope it's helpful. :)
