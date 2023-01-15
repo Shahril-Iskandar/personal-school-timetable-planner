@@ -6,7 +6,7 @@ This is a personal project to allow myself to plan university courses visually; 
 Problem that inspire me to this:
 NIE provides semester timetable in PDF format which makes it hard to visualise the day/time of week for that particular course. NTU STARS allows students to tentatively add courses into their planner and visualise it in a nicer way. So this project aims to do just that with a combination of Python and Excel VBA.
 
-How?
+How to use?
 
 Download file `Module1.bas` and follow guide on `Instructions.ipynb`to run code on `main.ipynb`.
 
